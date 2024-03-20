@@ -1,0 +1,11 @@
+*_files/
+*.html
+/.quarto/
+*.pdf
+unused/
+misc.md
+**venv/
+profiles/
+_build/
+slides_files/
+supporting-files/
