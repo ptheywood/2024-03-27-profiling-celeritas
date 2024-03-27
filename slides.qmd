@@ -214,7 +214,7 @@ $ ctest --rerun-failed --output-on-failure
 
 <!--  -->
 
-+ Celeritas `v0.4.2`
++ Celeritas `v0.4.2` with VecGeom `v1.2.4`
 
 ## Profiling Scenario
 
