@@ -35,7 +35,7 @@ quarto render slides.qmd --to html
 ``` bash
 quarto preview slides.qmd
 ```
-<!-- 
+
 ## Hosted via gh-pages
 
 gh-action based publication via `.github/workflows/publish.yml`
@@ -57,4 +57,4 @@ Initial publication set up required:
 3. Return to the `main` branch (`git checkout main`)
 4. Run `quarto publish gh-pages` once to create `_publish.yml` in the gh-pages branch.
     * This is required by quarto-dev/quarto-actions/publish
-5. Subsequent events which trigger `.github/workflows/publish.yml` (`workflow_dispatch`, pushes to `main`) should result in updated content. -->
+5. Subsequent events which trigger `.github/workflows/publish.yml` (`workflow_dispatch`, pushes to `main`) should result in updated content.
