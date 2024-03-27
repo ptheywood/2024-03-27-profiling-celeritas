@@ -210,7 +210,6 @@ $ ctest --rerun-failed --output-on-failure
 
 + Optimised build
   + `-DCMAKE_BUILD_TYPE=Release`, `-O3` `-lineinfo`
-  + `-DCMAKE_BUILD_TYPE=RelWithDebInfo`, `-O2 -g`
 
 <!--  -->
 
