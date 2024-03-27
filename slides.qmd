@@ -24,6 +24,8 @@ format:
     auto-stretch: false
     fontsize: 32px
     navigation-mode: linear
+    controls: true
+    mouse-wheel: true
 
 # title slide background
 title-slide-attributes:
