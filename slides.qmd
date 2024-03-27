@@ -232,11 +232,19 @@ $ ctest --rerun-failed --output-on-failure
 + `1300` primaries per event
 + `1048576` track slots (max threads)
 
+```{.console .code-overflow-wrap code-line-numbers="1,3" .smaller}
+$ time ./bin/celer-sim cms2018+field+msc.json
+# ...
+real    1m13.997s
+user    1m7.096s
+sys     0m0.871s
+```
+
 :::
 
 ::: {.column width="50%"}
 
-```{.json .smaller }
+```{.json .even-smaller }
 {
     "_exe": "celer-sim",
     "_format": "celer-sim",
@@ -365,29 +373,6 @@ $ ctest --rerun-failed --output-on-failure
 :::
 
 ::::
-
-## Running the scenario
-
-```{.console .code-overflow-wrap code-line-numbers="1,11,15-17"}
-$ time ./bin/celer-sim cms2018+field+msc.json
-status: Loading input and initializing problem data
-status: Initializing Geant4 run manager
-status: Initializing Geant4 geometry
-info: Loading Geant4 geometry from GDML at /path/to/cms2018.gdml
-status: Building Geant4 physics tables
-status: Transferring data from Geant4
-status: Loading external elemental data
-status: Loading VecGeom geometry from GDML at /path/to/cms2018.gdml
-status: Initializing tracking information
-celeritas/src/celeritas/geo/GeoMaterialParams.cc:205: warning: Some geometry volumes do not have known material IDs: PixelForwardInnerDiskOuterRing_seg_1@0x7f4a9a837fc0, 
-
-# ...
-
-real    1m13.997s
-user    1m7.096s
-sys     0m0.871s
-```
-
 
 ## Power Consumption Monitoring
 
@@ -590,6 +575,28 @@ The following tests FAILED:
 
 :::
 
+
+## Running the scenario
+
+```{.console .code-overflow-wrap code-line-numbers="1,11,15-17"}
+$ time ./bin/celer-sim cms2018+field+msc.json
+status: Loading input and initializing problem data
+status: Initializing Geant4 run manager
+status: Initializing Geant4 geometry
+info: Loading Geant4 geometry from GDML at /path/to/cms2018.gdml
+status: Building Geant4 physics tables
+status: Transferring data from Geant4
+status: Loading external elemental data
+status: Loading VecGeom geometry from GDML at /path/to/cms2018.gdml
+status: Initializing tracking information
+celeritas/src/celeritas/geo/GeoMaterialParams.cc:205: warning: Some geometry volumes do not have known material IDs: PixelForwardInnerDiskOuterRing_seg_1@0x7f4a9a837fc0, 
+
+# ...
+
+real    1m13.997s
+user    1m7.096s
+sys     0m0.871s
+```
 
 ## `nsys`: Timeline {.smalltitle}
 

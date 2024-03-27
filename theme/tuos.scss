@@ -157,7 +157,11 @@ $dark-bg-code-color: $tuos-powder-blue;
     }
 
     pre.smaller {
-        font-size: .4em;
+        font-size: 0.5em;
+    }
+
+    pre.even-smaller {
+        font-size: 0.4em;
     }
 
     .columns>.column.column-final-right>table{
