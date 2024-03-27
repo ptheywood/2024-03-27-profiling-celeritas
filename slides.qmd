@@ -11,7 +11,7 @@ footer: "Profiiling Celeritas - [GridPP51 & SWIFT-HEP07](https://indico.cern.ch/
 format:
   revealjs:
     theme: theme/tuos.scss
-    embed-resources: false  # only enable when publish-ready for perf reasons
+    embed-resources: true  # only enable when publish-ready for perf reasons
     template-partials: 
       - title-slide.html
     # show-notes: separate-page
@@ -85,7 +85,7 @@ title-slide-attributes:
 
 ::: {.celeritas-logo }
 
-![](img/celeritas-project/celeritas-square.svg){style="max-width:20%; float: right;" alt="Celeritas project Logo"}
+![](img/celeritas-project/celeritas-square.png){style="max-width:20%; float: right;" alt="Celeritas project Logo"}
 
 :::
 
