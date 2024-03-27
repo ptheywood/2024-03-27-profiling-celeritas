@@ -307,6 +307,10 @@ $dark-bg-code-color: $tuos-powder-blue;
     .slide-logo {
         margin-bottom: 8px;
     }
+
+    .slide-number > a[href*='title-slide'] {
+        display: none;
+      }
 }
 .reveal.has-dark-background .footer {
     a {

@@ -507,10 +507,10 @@ UKRI "Shaping the Future of UK large-scale compute" survey <br /> closes **29 Ma
 
 :::
 
-# Additional Slides {.divider .coral visibility="uncounted"}
+# Additional Slides {.divider .coral visibility="uncounted" data-hide-slide-number='true'}
 
 
-## Building Celeritas on GH200
+## Building Celeritas on GH200 {visibility="uncounted" data-hide-slide-number='true'}
 
 + Some warnings which can be suppressed via `-Wno-psabi`
 + GCC >= 10.1 on `aarch64`
@@ -526,7 +526,7 @@ include/VecGeom/base/Transformation3D.h:213:3: note: parameter
       |   ^
 ```
 
-## Celeritas test suite on GH200
+## Celeritas test suite on GH200 {visibility="uncounted" data-hide-slide-number='true'}
 
 ```{.console code-line-numbers="1,3,11,13-15"}
 $ ctest
@@ -546,7 +546,7 @@ The following tests FAILED:
         160 - celeritas/phys/Particle (SEGFAULT)
 ```
 
-## Celeritas test suite on GH200
+## Celeritas test suite on GH200 {visibility="uncounted" data-hide-slide-number='true'}
 
 
 ```{.console code-line-numbers="1,3-4,6,11"}
@@ -575,7 +575,7 @@ The following tests FAILED:
 :::
 
 
-## Running the scenario
+## Running the scenario {visibility="uncounted" data-hide-slide-number='true'}
 
 ```{.console .code-overflow-wrap code-line-numbers="1,11,15-17"}
 $ time ./bin/celer-sim cms2018+field+msc.json
@@ -597,38 +597,38 @@ user    1m7.096s
 sys     0m0.871s
 ```
 
-## `nsys`: Timeline {.smalltitle}
+## `nsys`: Timeline {.smalltitle visibility="uncounted" data-hide-slide-number='true'} 
 
 ![](img/nsys/gh200-cms2018+field+msc-summary.png){fig-alt="Nsys Timeline view for celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
 
-## `nsys`: Host-Device Communication {.smalltitle}
+## `nsys`: Host-Device Communication {.smalltitle visibility="uncounted" data-hide-slide-number='true'} 
 
 ![](img/nsys/gh200-cms2018+field+msc-h2d-2x.png){fig-alt="Nsys Timeline view for celer-sim cms2018+field+msc on GH200, showing the bulk of the host-device communication" width="100%" height="100%"}
 
-## `ncu`: `ERR_NVGPUCTRPERM` {.smalltitle}
+## `ncu`: `ERR_NVGPUCTRPERM` {.smalltitle visibility="uncounted" data-hide-slide-number='true'} 
 
 + Nvidia profiler counters require root or security mitigation disabling since 418.43 (2019-02-22). See [ERR_NVGPUCTRPERM](https://developer.nvidia.com/nvidia-development-tools-solutions-err_nvgpuctrperm-permission-issue-performance-counters).
 
-## `ncu`: Summary along-step {.smalltitle}
+## `ncu`: Summary along-step {.smalltitle visibility="uncounted" data-hide-slide-number='true'} 
 
 ![](img/ncu/gh200-cms2018+field+msc-summary-table-single.png){fig-alt="Nsight Compute UI showing the X for the slowest along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
 
-## `ncu`: Compute {.smalltitle}
+## `ncu`: Compute {.smalltitle visibility="uncounted" data-hide-slide-number='true'} 
 
 ![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-compute.png){fig-alt="Nsight Compute UI showing the Compute section for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
 
-## `ncu`: Instructions {.smalltitle}
+## `ncu`: Instructions {.smalltitle visibility="uncounted" data-hide-slide-number='true'} 
 
 ![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-instructions.png){fig-alt="Nsight Compute UI showing the instructions section for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
 
-## `ncu`: Memory Access Pattern {.smalltitle}
+## `ncu`: Memory Access Pattern {.smalltitle visibility="uncounted" data-hide-slide-number='true'} 
 
 ![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-memory.png){fig-alt="Nsight Compute UI showing the memory table for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
 
-## `ncu`: Launch Statistics {.smalltitle}
+## `ncu`: Launch Statistics {.smalltitle visibility="uncounted" data-hide-slide-number='true'} 
 
 ![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-launchstats.png){fig-alt="Nsight Compute UI showing the launch statistics for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
 
-## `ncu`: Source {.smalltitle}
+## `ncu`: Source {.smalltitle visibility="uncounted" data-hide-slide-number='true'} 
 
 ![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-source.png){fig-alt="Nsight Compute UI showing the source counters for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
