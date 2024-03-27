@@ -1,0 +1,626 @@
+---
+title: "Profiling Celeritas"
+author: 
+  - "Peter Heywood, Research Software Engineer"
+institute: 
+  - "The University of Sheffield"
+date: "2024-03-27"
+logo: ./img/UOSLogo_Primary_Violet_RGB.svg
+footer: "Profiiling Celeritas - [GridPP51 & SWIFT-HEP07](https://indico.cern.ch/event/1366954)"
+
+format:
+  revealjs:
+    theme: theme/tuos.scss
+    embed-resources: false  # only enable when publish-ready for perf reasons
+    template-partials: 
+      - title-slide.html
+    # show-notes: separate-page
+    slide-number: c
+    width: 1050
+    height: 700
+    margin: 0.1
+    min-scale: 0.2
+    max-scale: 2.0
+    auto-stretch: false
+    fontsize: 32px
+    navigation-mode: linear
+
+# title slide background
+title-slide-attributes:
+  data-background-color: "#9ADBE8" # $tuos-powder-blue
+  # data-background-color: "#D7F1F6" # $tuos-powder-blue-40
+
+# https://quarto.org/docs/presentations/revealjs
+---
+
+# Context {.divider .teal}
+
+## Increase Science Throughput
+
++ Ever-increasing demand for increased simulation throughput
+
+1. Buy more / "better" hardware
+2. **Improve Software**
+    + Improve implementations
+    + Improve algorithms (i.e. work efficiency)
+
++ Must **understand software performance** to improve performance
+
+::: {.call-to-action .fragment}
+
+**Profile**
+
+:::
+
+
+## Profiling Tools
+
+::: {}
+
++ CPU-only profilers
+  + `gprof`, `perf`, Kcachegrind, VTune, ...
+:::
+
+:::: {.columns}
+
+::: {.column width="50%" .bg-darker}
+
++ **NVIDIA Profiling tools**
+  + **[Nsight Systems](https://developer.nvidia.com/nsight-systems)**
+  + **[NVIDIA Nsight Compute](https://developer.nvidia.com/nsight-compute)**
+  + `nvprof`
+:::
+
+::: {.column width="50%"}
+
++ AMD Profiling tools
+  + `roctracer`
+  + `rocsys`
+  + `rocprofv2`
+:::
+
+::::
+
+## Celeritas
+
+::: {.celeritas-logo }
+
+![](img/celeritas-project/celeritas-square.svg){style="max-width:20%; float: right;" alt="Celeritas project Logo"}
+
+:::
+
+<!-- > Celeritas is a new Monte Carlo transport code designed for high-performance simulation of high-energy physics detectors. -->
+
+> The Celeritas project implements HEP detector physics on GPU accelerator hardware with the ultimate goal of supporting the massive computational requirements of the HL-LHC upgrade.
+
++ [github.com/celeritas-project/celeritas](https://github.com/celeritas-project/celeritas)
+
++ NVIDIA GPUs via [CUDA](https://developer.nvidia.com/cuda-toolkit)
++ AMD GPUs via [HIP](https://github.com/ROCm-Developer-Tools/HIP) 
+
+<!--  -->
+
++ [**Ben Morgan - "GPU workflows: Celeritas and AdePT simulation"**](https://indico.cern.ch/event/1366954/contributions/5856700/)
++ [Ben Morgan - "Detector Simulations in Particle Physics"](https://indico.cern.ch/event/1287030/contributions/5449366/attachments/2669935/4627997/ExaTEPPDetectorSimulation210623.pdf)
+
+
+## Graphics Processing Unit(s)
+
+:::: {.columns}
+
+::: {.column .smaller width="50%"}
+
++ Highly-parallel many-core co-processors
++ Optimised for throughput
++ (Relatively) Low volume of High-bandwidth memory
++ Power efficient (for suitable workloads)
++ Often connected via low-bandwidth PCIe
+
+:::
+
+
+::: {.column width="50%"}
+
+![Titan Xp & Titan V GPUs](img/2-titan-xp-2-titan-v.jpg)
+
+:::
+
+::::
+
+## [NVIDIA Grace Hopper Superchip](https://www.nvidia.com/en-us/data-center/grace-hopper-superchip/)
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
++ GH200 480GB
+  + **72-core ARM CPU**
+  + 480GB LPDDR5X
+  + H100 GPU (132 SMs)
+  + 96GB HBM3e (4TB/s)
+  + **NVLink-C2C 900 GB/s bidirectional bandwidth**
+  + 450-1000W
+
++ 3 now included in the [Bede Tier 2 HPC facility](https://n8cir.org.uk/bede/)
+
+:::
+
+::: {.column width="50%"}
+
+<style type="text/css">
+ .reveal img.gh-fig {
+    object-fit:cover; width: 400px; height: 400px;
+ }
+</style>
+
+![NVIDIA Grace Hopper Superchip](img/nvidia/nvidia-gh200-grace-hopper-superchip-platform.png){.gh-fig}
+
+:::
+
+::::
+
+## Host-Device Bandwidth
+
+![](img/interconnects-used.png){fig-alt="GPU Host-Device Interconnect Bandwidth" width="100%" height="100%"}
+
+## Celeritas test suite on GH200
+
+```{.console code-line-numbers="1,3"}
+$ ctest
+# ...
+99% tests passed, 2 tests failed out of 203
+```
+
+<div style="margin-top:1em;" />
+
+```{.console code-line-numbers="1,3-4,6,11"}
+$ ctest --rerun-failed --output-on-failure
+# ... 
+1/2 Test #158: celeritas/mat/Material ...........***Failed
+    Error regular expression found in output. Regex=[tests FAILED]  0.68 sec
+# ... 
+2/2 Test #160: celeritas/phys/Particle ..........   Passed    0.61 sec
+
+50% tests passed, 1 tests failed out of 2
+```
+
+<div style="margin-top:1em;" />
+
+::: {.smaller}
+
+| JSON Comparison | `mass_radiation_coeff` |
+|:----------------|:-----------------------|
+| Expected        |<code>0.036053928394553<span class="diff">09</span></code> |
+| Actual          |<code>0.036053928394553<span class="diff">1 </span></code>  |
+
+:::
+
+# Profiling Celeritas {.divider .flamingo}
+
+## Inputs / Configuration
+
++ Inputs should ideally be:
+  + Representative of real-world use
+  + Large enough to fully utilise hardware
+  + Small enough to generate usable profile data
+
+<!--  -->
+
++ Optimised build
+  + `-DCMAKE_BUILD_TYPE=Release`, `-O3` `-lineinfo`
+  + `-DCMAKE_BUILD_TYPE=RelWithDebInfo`, `-O2 -g`
+
+<!--  -->
+
++ Celeritas `v0.4.2`
+
+## Profiling Scenario
+
+:::: {.columns}
+
+::: {.column width="50%" }
+
++ `cms2018+field+msc` from [celeritas-project/regression](https://github.com/celeritas-project/regression)
++ `celer-sim`
+<!-- + `cms2018.gdml` -->
+
+<!--  -->
+
++ `16` Events
++ `1300` primaries per event
++ `1048576` track slots (max threads)
+
+:::
+
+::: {.column width="50%"}
+
+```{.json .smaller }
+{
+    "_exe": "celer-sim",
+    "_format": "celer-sim",
+    "_geometry": "vecgeom",
+    "_instance": 0,
+    "_name": [
+        "cms2018+field+msc",
+        "vecgeom",
+        "gpu"
+    ],
+    "_outdir": "cms2018+field+msc-vecgeom-gpu",
+    "_timeout": 600.0,
+    "_use_celeritas": true,
+    "_version": "0.4.2",
+    "action_diagnostic": false,
+    "brem_combined": false,
+    "cuda_heap_size": null,
+    "cuda_stack_size": 8192,
+    "default_stream": false,
+    "environ": {},
+    "event_file": null,
+    "field": [
+        0.0,
+        0.0,
+        1.0
+    ],
+    "field_options": {
+        "delta_chord": 0.025,
+        "delta_intersection": 1e-05,
+        "epsilon_rel_max": 0.001,
+        "epsilon_step": 1e-05,
+        "errcon": 0.0001,
+        "max_nsteps": 100,
+        "max_stepping_decrease": 0.1,
+        "max_stepping_increase": 5.0,
+        "minimum_step": 1.0000000000000002e-06,
+        "pgrow": -0.2,
+        "pshrink": -0.25,
+        "safety": 0.9
+    },
+    "geometry_file": "/path/to/cms2018.gdml",
+    "initializer_capacity": 67108864,
+    "max_events": 16,
+    "max_steps": 32768,
+    "mctruth_file": null,
+    "mctruth_filter": null,
+    "merge_events": true,
+    "num_track_slots": 1048576,
+    "physics_file": "",
+    "physics_options": {
+        "annihilation": true,
+        "apply_cuts": false,
+        "brems": "all",
+        "compton_scattering": true,
+        "coulomb_scattering": false,
+        "default_cutoff": 0.1,
+        "eloss_fluctuation": true,
+        "em_bins_per_decade": 56,
+        "gamma_conversion": true,
+        "gamma_general": false,
+        "integral_approach": true,
+        "ionization": true,
+        "linear_loss_limit": 0.01,
+        "lowest_electron_energy": [
+            0.001,
+            "MeV"
+        ],
+        "lpm": true,
+        "max_energy": [
+            100000000.0,
+            "MeV"
+        ],
+        "min_energy": [
+            0.0001,
+            "MeV"
+        ],
+        "msc": "urban",
+        "msc_lambda_limit": 0.1,
+        "msc_range_factor": 0.04,
+        "msc_safety_factor": 0.6,
+        "photoelectric": true,
+        "rayleigh_scattering": false,
+        "relaxation": "none",
+        "verbose": false
+    },
+    "primary_options": {
+        "direction": {
+            "distribution": "isotropic",
+            "params": []
+        },
+        "energy": {
+            "distribution": "delta",
+            "params": [
+                10000.0
+            ]
+        },
+        "num_events": 16,
+        "pdg": [
+            11
+        ],
+        "position": {
+            "distribution": "delta",
+            "params": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "primaries_per_event": 1300,
+        "seed": 0
+    },
+    "secondary_stack_factor": 3.0,
+    "seed": 20220904,
+    "simple_calo": [],
+    "step_diagnostic": false,
+    "step_diagnostic_bins": null,
+    "step_limiter": null,
+    "sync": false,
+    "track_order": "unsorted",
+    "use_device": true,
+    "warm_up": true,
+    "write_track_counts": true
+}
+```
+
+:::
+
+::::
+
+## Running the scenario
+
+```{.console .code-overflow-wrap code-line-numbers="1,11,15-17"}
+$ time ./bin/celer-sim cms2018+field+msc.json
+status: Loading input and initializing problem data
+status: Initializing Geant4 run manager
+status: Initializing Geant4 geometry
+info: Loading Geant4 geometry from GDML at /path/to/cms2018.gdml
+status: Building Geant4 physics tables
+status: Transferring data from Geant4
+status: Loading external elemental data
+status: Loading VecGeom geometry from GDML at /path/to/cms2018.gdml
+status: Initializing tracking information
+celeritas/src/celeritas/geo/GeoMaterialParams.cc:205: warning: Some geometry volumes do not have known material IDs: PixelForwardInnerDiskOuterRing_seg_1@0x7f4a9a837fc0, 
+
+# ...
+
+real    1m13.997s
+user    1m7.096s
+sys     0m0.871s
+```
+
+
+## Power Consumption Monitoring
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
++ Can use [`nvml`](https://developer.nvidia.com/nvidia-management-library-nvml) to monitor GPU resource consumption
++ Does not account for the rest of the system
++ [github.com/willfurnass/gpuutiliz](https://github.com/willfurnass/gpuutiliz)
++ Peak (per second) consumption only 200W / 900W
+
+```{.bash}
+gpuutiliz -frequency 1 &
+gupid=$!
+./bin/celer-sim input.json
+kill ${gupid}
+```
+
+:::
+
+::: {.column width="50%"}
+
+![](img/celer-sim-cms2018+field+msc-gh200-gpuutiliz-3.png){fig-alt="GPU monitoring using willfurnass/gpuutiliz for celer-sim cms2018+field+msc on GH200, plotted via https://github.com/ptheywood/gpuutiliz-plotting
+" width="100%" height="100%"}
+
+:::
+
+::::
+
+
+# Nsight Systems {.divider .teal}
+
+## [Nsight Systems](https://developer.nvidia.com/nsight-systems)
+
+![](img/nvidia/nvidia-nsight-systems-icon-gbp-shaded-256.png){style="max-width:20%; width: 128px; float: right;" alt="NVIDIA Nsight Systems logo"}
+
++ System-wide performance analysis
++ CPU + GPU 
++ Visualise a timeline of events
++ CUDA API information, kernel block sizes, etc
++ Pascal GPUs or newer (SM 60+)
+
+
+
+```{.bash .bigger}
+nsys profile -o timeline ./bin/celer-sim input.json
+nsys-ui timeline.nsys-rep
+```
+
++ Enable NVTX in Celeritas via `CELER_ENABLE_PROFILING=1`
+
+## `nsys`: Timeline {.smalltitle}
+
+![](img/nsys/gh200-cms2018+field+msc-summary-2x.png){fig-alt="Nsys Timeline view for celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+## `nsys`: Host-Device Communication {.smalltitle}
+
+![](img/nsys/gh200-cms2018+field+msc-h2d-1.5s-3x.png){fig-alt="Nsys Timeline view for celer-sim cms2018+field+msc on GH200, showing the bulk of the host-device communication" width="100%" height="100%"}
+
+## `nsys`: Host-Device Communication {.smalltitle}
+
+![](img/nsys/gh200-cms2018+field+msc-h2d-1.5s-3x-table-242MB-328GBs-690us.png){fig-alt="Nsys Timeline view for celer-sim cms2018+field+msc on GH200, showing the bulk of the host-device communication" width="100%" height="100%"}
+
+242MB, 690μs @ 328GB/s
+
+## `nsys`: Longest Duration Kernel {.smalltitle}
+
+![](img/nsys/gh200-cms2018+field+msc-longest-kernel.png){fig-alt="Nsys Timeline view for celer-sim cms2018+field+msc on GH200, showing a single step including the longer running kernels. The summary view shows kernels sorted by duration" width="100%" height="100%"}
+
+# Nsight Compute {.divider .flamingo}
+
+## [Nsight Compute](https://developer.nvidia.com/nsight-compute)
+
+![](img/nvidia/nvidia-nsight-compute-icon-gbp-shaded-128.png){style="max-width:20%; width: 128px; float: right;" alt="NVIDIA Nsight Compute logo"}
+
+
++ Detailed GPU performance metrics
++ Compile with `-lineinfo` for line-level profiling
++ Use `--set=full` for non-interactive profiling
++ Replays GPU kernels many times - **significant runtime increase**
++ Reduce captured kernels via filtering, `-s`, `-c` etc.
++ Volta+ (SM >= 70)
+
+```{.bash .bigger}
+# All metrics, skip 64 kernels, capture 128.
+ncu --set=full -s 64 -c 128 -o metrics.ncu-rep \
+    ./bin/celer-sim input.json
+ncu-ui metrics.ncu-rep
+```
+
+## `ncu`: Summary {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-summary-table.png){fig-alt="Nsight Compute UI showing the summary table for 100 kernel launches from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+
+## `ncu`: "Speed of Light" {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-sol.png){fig-alt="Nsight Compute UI showing the 'speed of light' for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+## `ncu`: Scheduler {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-scheduler.png){fig-alt="Nsight Compute UI showing the scheudler statistics for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+## `ncu`: Warp state {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-warpstate.png){fig-alt="Nsight Compute UI showing the warpstate for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+
+## `ncu`: Occupancy {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-occupancy.png){fig-alt="Nsight Compute UI showing the occupancy section for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+<!-- mention register use is gernearlly up to the compiler, but can be influenced. Don't think this was as high on older profiles. Hard to do much about with FP64 codes without losing too much performance to spilling - FP64 just uses twice as many registers. Fraction of active warps from total possible (64 on most fP64 cards). Can't hide latency if it's too low. -->
+
+## `ncu`: Performance Monitor Sampling {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-pm.png){fig-alt="Nsight Compute UI showing the performance monitoring for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
++ Nsight Compute >= `2023.3` (distributed with CUDA 12.3)
+
+## `ncu`: Memory Access Pattern {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-memory-diagram.png){fig-alt="Nsight Compute UI showing the memory diagram for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+# Thank you {.divider .flamingo}
+
+::: {.dsit-plug}
+
+UKRI "Shaping the Future of UK large-scale compute" survey <br /> closes **29 March 2024** (this Friday!)
+
+[https://engagementhub.ukri.org/ukri-infrastructure/shaping-the-future-of-uk-large-scale-compute/](https://engagementhub.ukri.org/ukri-infrastructure/shaping-the-future-of-uk-large-scale-compute/)
+
+:::
+
+# Additional Slides {.divider .coral visibility="uncounted"}
+
+
+## Building Celeritas on GH200
+
++ Some warnings which can be suppressed via `-Wno-psabi`
++ GCC >= 10.1 on `aarch64`
+
+```{.console code-line-numbers="4-6"}
+include/VecGeom/base/Transformation3D.h: In member function
+  ‘vecgeom::cxx::Vector3D<double> 
+  vecgeom::cxx::Transformation3D::Translation() const’:
+include/VecGeom/base/Transformation3D.h:213:3: note: parameter 
+  passing for argument of type ‘vecgeom::cxx::Vector3D<double>’ 
+  when C++17 is enabled changed to match C++14 in GCC 10.1
+  213 |   {
+      |   ^
+```
+
+## Celeritas test suite on GH200
+
+```{.console code-line-numbers="1,3,11,13-15"}
+$ ctest
+# ...
+99% tests passed, 2 tests failed out of 203
+
+Label Time Summary:
+app           = 108.80 sec*proc (11 tests)
+gpu           = 101.33 sec*proc (43 tests)
+nomemcheck    = 107.88 sec*proc (9 tests)
+unit          =  33.99 sec*proc (191 tests)
+
+Total Test time (real) = 140.78 sec
+
+The following tests FAILED:
+        158 - celeritas/mat/Material (Failed)
+        160 - celeritas/phys/Particle (SEGFAULT)
+```
+
+## Celeritas test suite on GH200
+
+
+```{.console code-line-numbers="1,3-4,6,11"}
+$ ctest --rerun-failed --output-on-failure
+# ... 
+1/2 Test #158: celeritas/mat/Material ...........***Failed
+    Error regular expression found in output. Regex=[tests FAILED]  0.68 sec
+# ... 
+2/2 Test #160: celeritas/phys/Particle ..........   Passed    0.61 sec
+
+50% tests passed, 1 tests failed out of 2
+
+The following tests FAILED:
+        158 - celeritas/mat/Material (Failed)
+```
+
+<br />
+
+::: {.smaller}
+
+| JSON Comparison | `mass_radiation_coeff` |
+|:----------------|:-----------------------|
+| Expected        |<code>0.036053928394553<span class="diff">09</span></code> |
+| Actual          |<code>0.036053928394553<span class="diff">1 </span></code>  |
+
+:::
+
+
+## `nsys`: Timeline {.smalltitle}
+
+![](img/nsys/gh200-cms2018+field+msc-summary.png){fig-alt="Nsys Timeline view for celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+## `nsys`: Host-Device Communication {.smalltitle}
+
+![](img/nsys/gh200-cms2018+field+msc-h2d-2x.png){fig-alt="Nsys Timeline view for celer-sim cms2018+field+msc on GH200, showing the bulk of the host-device communication" width="100%" height="100%"}
+
+## `ncu`: `ERR_NVGPUCTRPERM` {.smalltitle}
+
++ Nvidia profiler counters require root or security mitigation disabling since 418.43 (2019-02-22). See [ERR_NVGPUCTRPERM](https://developer.nvidia.com/nvidia-development-tools-solutions-err_nvgpuctrperm-permission-issue-performance-counters).
+
+## `ncu`: Summary along-step {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-summary-table-single.png){fig-alt="Nsight Compute UI showing the X for the slowest along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+## `ncu`: Compute {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-compute.png){fig-alt="Nsight Compute UI showing the Compute section for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+## `ncu`: Instructions {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-instructions.png){fig-alt="Nsight Compute UI showing the instructions section for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+## `ncu`: Memory Access Pattern {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-memory.png){fig-alt="Nsight Compute UI showing the memory table for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+## `ncu`: Launch Statistics {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-launchstats.png){fig-alt="Nsight Compute UI showing the launch statistics for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}
+
+## `ncu`: Source {.smalltitle}
+
+![](img/ncu/gh200-cms2018+field+msc-is-along-step-action-equal-source.png){fig-alt="Nsight Compute UI showing the source counters for the along-step kernel from celer-sim cms2018+field+msc on GH200" width="100%" height="100%"}

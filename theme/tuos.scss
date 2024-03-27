@@ -1,0 +1,318 @@
+/*-- scss:defaults --*/
+
+// brand guideline colours https://www.sheffield.ac.uk/brand-toolkit/colour
+// tuos core colours
+$tuos-deep-violet: #440099;
+$tuos-powder-blue: #9ADBE8;
+$tuos-midnight-black: #131E29;
+// tuos core tints
+$tuos-deep-violet-100: #440099;
+$tuos-powder-blue-100: #9ADBE8;
+$tuos-midnight-black-100: #131E29;
+$tuos-deep-violet-90: #5719A3;
+$tuos-powder-blue-90: #A4DFEA;
+$tuos-midnight-black-90: #2B353E;
+$tuos-deep-violet-80: #6933AD;
+$tuos-powder-blue-80: #AEE2ED;
+$tuos-midnight-black-80: #424B54;
+$tuos-deep-violet-70: #7C4DB8;
+$tuos-powder-blue-70: #B8E6EF;
+$tuos-midnight-black-70: #5A6269;
+$tuos-deep-violet-60: #8F66C2;
+$tuos-powder-blue-60: #C2E9F1;
+$tuos-midnight-black-60: #71787F;
+$tuos-deep-violet-50: #A280CC;
+$tuos-powder-blue-50: #CDEDF3;
+$tuos-midnight-black-50: #898F94;
+$tuos-deep-violet-40: #B499D6;
+$tuos-powder-blue-40: #D7F1F6;
+$tuos-midnight-black-40: #A1A5A9;
+$tuos-deep-violet-30: #C7B3E0;
+$tuos-powder-blue-30: #E1F4F8;
+$tuos-midnight-black-30: #B8BBBF;
+$tuos-deep-violet-20: #DACCEB;
+$tuos-powder-blue-20: #EBF8FA;
+$tuos-midnight-black-20: #D0D2D4;
+$tuos-powder-blue-15: #F0FAFC;
+$tuos-deep-violet-10: #ECE6F5;
+$tuos-powder-blue-10: #F5FBFD;
+$tuos-midnight-black-10: #E7E9EA;
+$tuos-deep-violet-5: #F6F2FA;
+$tuos-powder-blue-5: #FAFDFE;
+$tuos-midnight-black-5: #F3F4F4;
+$tuos-deep-violet-3: #F9F7FC;
+$tuos-midnight-black-3: #F8F8F9;
+// wider colour palette
+$tuos-teal: #005A8F;
+$tuos-aqua: #00BBCC;
+$tuos-sky-blue: #64CBE8;
+$tuos-mint-green: #00CE7C;
+$tuos-spearmint: #3BD4AE;
+$tuos-pastel-green: #A1DED2;
+$tuos-mauve: #663DB3;
+$tuos-purple: #981F92;
+$tuos-lavender: #DAA8E2;
+$tuos-coral: #E7004C;
+$tuos-flamingo: #FF6371;
+$tuos-peach: #FF9664;
+
+// tuos colour accessibility
+// use white or powder blue text on deep violet backgrounds
+// use black or deep violet on powder blue
+// use white or powder blue on midnight-black
+
+// eye strain (screens) - avoid pure black / pure white contrast, use midnight black-100 and midnight-black-3 instead.
+
+// tuos recommended colour combinations
+// Teal combinations: deep violet, peach, sky blue
+// Aqua combinations: deep violet, peach, powder blue
+// Sky blue combinations: deep violet, flamingo, mauve
+// Mint green combinations: deep violet, powder blue, purple
+// Spearmint combinations: deep violet, flamingo, mauve
+// Pastel green combinations: deep violet, flamingo, mauve
+// Mauve combinations: deep violet, peach, lavender
+// Purple combinations: deep violet, peach, powder blue
+// Lavender combinations: deep violet, flamingo, mauve
+// Coral combinations: deep violet, powder blue, peach
+// Flamingo combinations: deep violet, sky blue, mauve
+// Peach combinations: deep violet, sky blue, mauve
+
+// import closest fonts from googles CDN.
+// @import url(https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700,400italic,700italic);
+// @import url(https://fonts.googleapis.com/css?family=Source+Sans+3:400,700,400italic,700italic);
+// @import url(https://fonts.googleapis.com/css?family=Source+Serif+4:400,700,400italic,700italic);
+// // tuos fonts
+
+// $tuos-font-family-serif: "Source Serif Pro", "Source Serif 4", serif;
+// $tuos-font-family-sans-serif: "Source Sans Pro", "Source Sans 3", Helvetica, sans-serif;
+// $tuos-font-family-monospace: "Source Code Pro", monospace;
+
+// tuos fonts
+$tuos-font-family-serif: "Source Serif Pro", serif;
+$tuos-font-family-sans-serif: "Source Sans Pro", Helvetica, sans-serif;
+$tuos-font-family-monospace: "Source Code Pro", monospace;
+
+// -- set theme variables --
+
+// Set quarto / reveal theme variables as required, based on tuos brand guidelines:
+
+// Full list of available quarto reveal.js theme variables, from https://quarto.org/docs/presentations/revealjs/themes.html 
+// fonts
+$font-family-sans-serif: $tuos-font-family-sans-serif;
+$font-family-monospace: $tuos-font-family-monospace;
+// $presentation-font-size-root: 40px;
+// $presentation-font-smaller: 0.7;
+// $presentation-line-height: 1.3;
+$body-bg: $tuos-midnight-black-5;  // low eye strain colours
+$body-color: $tuos-midnight-black;
+$text-muted: $tuos-midnight-black-50; // lighten($body-color, 50%);
+$link-color: $tuos-teal;
+$link-color-hover: lighten($link-color, 15%);
+// $selection-bg: lighten($link-color, 25%);
+// $selection-color: $body-bg;
+// $border-color: lighten($body-color, 30%);
+// $border-width: 1px;
+// $border-radius: 3px;
+// $presentation-heading-font: $font-family-sans-serif;
+// $presentation-heading-color: $body-color;
+// $presentation-heading-line-height: 1.2;
+// $presentation-heading-letter-spacing: normal;
+// $presentation-heading-text-transform: none;
+// $presentation-heading-text-shadow: none;
+// $presentation-h1-text-shadow: none;
+// $presentation-heading-font-weight: 600;
+$presentation-h1-font-size: 2.0em;
+$presentation-h2-font-size: 1.6em;
+$presentation-h3-font-size: 1.3em;
+$presentation-h4-font-size: 1em;
+// $presentation-block-margin: 12px;
+$presentation-slide-text-align: left;
+$presentation-title-slide-text-align: left;
+// $code-block-bg: $body-bg;
+// $code-block-border-color: lighten($body-color, 60%);
+$code-block-font-size: 0.66em;
+// $code-color: var(–quarto-hl-fu-color);
+// $code-bg: transparent;
+// $tabset-border-color: $code-block-border-color;
+$light-bg-text-color: $tuos-midnight-black;
+$light-bg-link-color: $tuos-powder-blue;
+$light-bg-code-color: $tuos-powder-blue;
+$dark-bg-text-color: $tuos-midnight-black-3;
+$dark-bg-link-color: $tuos-powder-blue;
+$dark-bg-code-color: $tuos-powder-blue;
+
+/*-- scss:rules --*/
+.reveal {
+
+    .smaller {
+        font-size: 90%;
+    }
+
+    pre.bigger {
+        font-size: .8em;
+
+        code {
+            padding: 8px 16px;
+        }
+    }
+
+    pre.smaller {
+        font-size: .4em;
+    }
+
+    .columns>.column.column-final-right>table{
+        margin-left: auto;
+    }
+
+
+    // Title slide additional formatting 
+    #title-slide #title-logo-container {
+        width: 8em;
+        height: 2.7em;
+        margin-bottom: 1.5em;
+        svg {
+
+        }
+    }
+
+    .call-to-action {
+        text-align: center;
+        font-size: 3em;
+        color: $tuos-flamingo;
+        margin: 0.5em auto;
+    }
+
+    #title-slide {
+        h1 {
+            color: $tuos-deep-violet;
+            font-weight:bold;
+            margin-bottom: 0.5em;
+        }
+        div.columns {
+            display: flex;
+        }
+        p {
+            color: $tuos-deep-violet;
+        }
+        p.subtitle {
+            font-size: $presentation-h3-font-size;
+            font-weight:bold;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        p.author {
+            font-size: $presentation-h3-font-size;
+            font-weight: bold;
+        }
+        p.institute {
+            font-size: $presentation-h4-font-size;
+        }
+        p.date {
+            font-size: $presentation-h4-font-size;
+            margin-left: 0px;
+        }
+    }
+
+    .slide h2 {
+        color: $tuos-deep-violet;
+        background: $tuos-powder-blue;
+        padding: 0.1em 0.2em;
+    }
+
+    .slide.headerless h2 {
+        padding: 0;
+    }
+
+    .slide.smalltitle h2 {
+        font-size: $presentation-h4-font-size;
+        margin-bottom: 0;
+    }
+    // .slide.smalltitle h2 ~ p {
+        // margin-top: 0;
+        // margin-bottom: 0;
+    // }
+    .slide.smalltitle p > img {
+        // margin-top: 0;
+        // margin-bottom: 0;
+        max-height: 100%;
+        max-width: 100%;
+    }
+
+    .progress {
+        color: $tuos-powder-blue;
+    }
+
+    .divider.flamingo {
+        background-color: $tuos-flamingo !important;
+        h1 {
+            color: $tuos-midnight-black-3;
+        }
+    }
+    .divider.coral {
+        background-color: $tuos-coral !important;
+        h1 {
+            color: $tuos-midnight-black-3;
+        }
+    }
+    .divider.title-slide h1{
+        font-size: 2.2em;
+        // margin: 0 1.5em;
+        text-align: center;
+    }
+
+    .divider.teal {
+        background-color: $tuos-teal !important;
+        h1 {
+            color: $tuos-midnight-black-3;
+        }
+    }
+    .footer {
+        color: $tuos-midnight-black-80;
+    }
+    .footer a {
+        color: $tuos-midnight-black-90;
+    }
+
+    .bg-darker {
+        background: $tuos-midnight-black-10;
+    }
+
+    figure {
+        figcaption { 
+            text-align: center;
+            margin-top: 0;
+        }
+    }
+
+    .dsit-plug,
+    .dsit-plug a {
+        color: $tuos-midnight-black;
+    }
+
+    .dsit-plug {
+        text-align: center;
+        margin-top: 4rem;
+        padding: 1rem 2rem;
+        background: #ffffff3d;
+    }
+
+    code span.diff {
+        color: $tuos-coral;
+    }
+}
+.reveal.has-dark-background .footer {
+    a {
+        color: $tuos-midnight-black-5;
+    }
+    color: $tuos-midnight-black-10;
+}
+.reveal.has-light-background .footer {
+    a {
+        color: $tuos-midnight-black-100;
+    }
+    color: $tuos-midnight-black-90;
+}
+
+// .reveal pre.code-overflow-wrap>code.sourceCode {
+//     white-space: pre-wrap;
+// }
